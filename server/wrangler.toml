@@ -1,0 +1,8 @@
+name = "zepio-erp-server"
+main = "src/worker.js"
+compatibility_date = "2024-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NODE_ENV = "production"
+# DATABASE_URL = "postgres://user:pass@host:port/db"
