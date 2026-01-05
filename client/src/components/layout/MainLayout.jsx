@@ -18,11 +18,17 @@ export default function MainLayout() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [expandedMenu, setExpandedMenu] = React.useState(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
+
+    // Close mobile menu on navigation
+    React.useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location.pathname]);
 
     const navItems = [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -69,16 +75,32 @@ export default function MainLayout() {
             setExpandedMenu(expandedMenu === item.path ? null : item.path);
         } else {
             navigate(item.path);
+            setIsMobileMenuOpen(false); // Close on selection
         }
     };
 
     return (
-        <div className="min-h-screen bg-background flex">
+        <div className="min-h-screen bg-background flex relative">
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 bg-gray-900 text-white hidden md:flex flex-col fixed h-full inset-y-0 z-50 print:hidden">
-                <div className="p-6 border-b border-gray-800 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-accent flex items-center justify-center font-bold text-white">Z</div>
-                    <span className="text-xl font-bold tracking-tight">Zepio ERP</span>
+            <aside className={`w-64 bg-gray-900 text-white ${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col fixed h-full inset-y-0 z-50 print:hidden transition-transform duration-300 md:translate-x-0`}>
+                <div className="p-6 border-b border-gray-800 flex items-center gap-3 justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-accent flex items-center justify-center font-bold text-white">Z</div>
+                        <span className="text-xl font-bold tracking-tight">Zepio ERP</span>
+                    </div>
+                    {/* Close button for mobile */}
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden text-gray-400 hover:text-white">
+                        <div className="sr-only">Close sidebar</div>
+                        <ChevronDown className="h-6 w-6 rotate-90" />
+                    </button>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -148,7 +170,10 @@ export default function MainLayout() {
                         <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-white">Z</div>
                         Zepio
                     </div>
-                    <button className="p-2 text-gray-600">
+                    <button
+                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
                         <Menu className="h-6 w-6" />
                     </button>
                 </header>
