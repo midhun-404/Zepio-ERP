@@ -8,7 +8,7 @@ import {
     FileText,
     LogOut,
     Store,
-    Settings,
+    Settings as SettingsIcon,
     Menu,
     ChevronDown,
     Info
@@ -37,7 +37,7 @@ export default function MainLayout() {
         { path: '/inventory/suppliers', icon: Store, label: 'Suppliers' },
         { path: '/inventory/purchase-orders', icon: FileText, label: 'Purchase Orders' },
         { path: '/reports', icon: LayoutDashboard, label: 'Reports' },
-        { path: '/settings', icon: Settings, label: 'Settings' },
+        { path: '/settings', icon: SettingsIcon, label: 'Settings' },
         { path: '/about', icon: Info, label: 'About' },
     ];
 
