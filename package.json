@@ -8,6 +8,7 @@
     ],
     "scripts": {
         "build": "npm run build --workspace=client",
+        "postinstall": "npm run build --workspace=client",
         "deploy": "wrangler deploy"
     },
     "devDependencies": {
