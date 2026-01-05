@@ -14,15 +14,65 @@ export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
 
-        // API routes - placeholder for future backend integration
+        // API Routes
         if (url.pathname.startsWith('/api')) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            };
+
+            if (request.method === 'OPTIONS') {
+                return new Response(null, { headers });
+            }
+
+            // Auth: Login
+            if (url.pathname === '/api/auth/login' && request.method === 'POST') {
+                const body = await request.json();
+                return new Response(JSON.stringify({
+                    success: true,
+                    token: "demo-token-" + Date.now(),
+                    user: {
+                        id: 1,
+                        name: "Demo User",
+                        email: body.email,
+                        role: "admin",
+                        avatar: null
+                    }
+                }), { headers });
+            }
+
+            // Auth: Signup
+            if (url.pathname === '/api/auth/signup' && request.method === 'POST') {
+                const body = await request.json();
+                return new Response(JSON.stringify({
+                    success: true,
+                    token: "demo-token-" + Date.now(),
+                    user: {
+                        id: 2,
+                        name: body.fullName || "New User",
+                        email: body.email,
+                        role: "user",
+                        avatar: null
+                    }
+                }), { headers });
+            }
+
+            // Settings (required for dashboard load)
+            if (url.pathname === '/api/settings' && request.method === 'GET') {
+                return new Response(JSON.stringify({
+                    currency: "USD",
+                    theme: "light",
+                    companyName: "Demo Company"
+                }), { headers });
+            }
+
+            // Fallback for other API routes to prevent crashes
             return new Response(JSON.stringify({
-                status: 'Backend Work in Progress',
-                message: 'The Express backend is currently disabled for checking deployment stability.'
-            }), {
-                status: 200, // Returning 200 so frontend doesn't crash strictly
-                headers: { 'Content-Type': 'application/json' }
-            });
+                status: 'success',
+                message: 'Demo Mode: Action simulated successfully.'
+            }), { headers });
         }
 
         // Serve Static Assets (Frontend)
