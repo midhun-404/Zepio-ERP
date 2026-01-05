@@ -103,9 +103,30 @@ export default {
             // Reports: Dashboard Stats
             if (url.pathname === '/api/reports/dashboard' && request.method === 'GET') {
                 return new Response(JSON.stringify({
-                    totalSales: 15000,
-                    totalOrders: 45,
-                    lowStockCount: 2,
+                    sales: {
+                        total: 15430,
+                        count: 45,
+                        average: 342
+                    },
+                    pendingPayments: 2350,
+                    lowStock: {
+                        count: 2,
+                        items: []
+                    },
+                    healthScore: 85,
+                    recentSales: [
+                        { id: 101, date: "2025-01-05", customer: { name: "Alice Smith" }, totalAmount: 120.50, status: "PAID" },
+                        { id: 102, date: "2025-01-04", customer: { name: "Bob Jones" }, totalAmount: 450.00, status: "PARTIAL" },
+                        { id: 103, date: "2025-01-03", customer: { name: "Charlie Day" }, totalAmount: 89.99, status: "PAID" }
+                    ],
+                    topProducts: [
+                        { productId: 1, product: { name: "Wireless Headphones" }, totalSold: 15, totalRevenue: 1500 },
+                        { productId: 2, product: { name: "Ergonomic Chair" }, totalSold: 8, totalRevenue: 2400 },
+                        { productId: 3, product: { name: "Mechanical Keyboard" }, totalSold: 5, totalRevenue: 750 }
+                    ],
+                    deadStock: {
+                        data: []
+                    },
                     monthlyRevenue: [1200, 1900, 3000, 5000, 2000, 3000, 4500]
                 }), { headers });
             }
