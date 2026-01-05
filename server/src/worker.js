@@ -8,7 +8,7 @@
  */
 
 // We use 'require' because the app is CommonJS
-const app = require('./app');
+// const app = require('./app'); // Disabled for initial Cloudflare deployment to avoid bundling issues with 'fs', 'crypto', etc.
 
 export default {
     async fetch(request, env, ctx) {
