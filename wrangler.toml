@@ -1,0 +1,11 @@
+name = "zepio-erp"
+main = "server/src/worker.js"
+compatibility_date = "2024-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "client/dist"
+binding = "ASSETS"
+
+[vars]
+NODE_ENV = "production"
