@@ -1,5 +1,0 @@
-# SPA Fallback
-/* /index.html 200
-
-# API Proxy (Replace with your actual Worker URL)
-# /api/*  https://zepio-erp-server.YOUR_SUBDOMAIN.workers.dev/:splat  200

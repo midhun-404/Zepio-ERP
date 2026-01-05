@@ -14,21 +14,32 @@ export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
 
-        // Basic Health Check to verify Worker is running
-        // This bypasses Express for immediate feedback
-        if (url.pathname === '/' || url.pathname === '/health') {
+        // API routes - placeholder for future backend integration
+        if (url.pathname.startsWith('/api')) {
             return new Response(JSON.stringify({
-                status: 'Worker Running',
-                note: 'Express adapter needed for full functionality',
-                env: env.NODE_ENV
+                status: 'Backend Work in Progress',
+                message: 'The Express backend is currently disabled for checking deployment stability.'
             }), {
+                status: 200, // Returning 200 so frontend doesn't crash strictly
                 headers: { 'Content-Type': 'application/json' }
             });
         }
 
-        // Attempt to mock Request/Response for Express
-        // In a real scenario, use a library like 'toucan-js' or 'hono'
-        // This is a placeholder indicating where the adapter logic goes.
-        return new Response("Zepio ERP Backend: To run Express on Workers, please use a compatible adapter/database.", { status: 501 });
+        // Serve Static Assets (Frontend)
+        // usage of 'ASSETS' binding defined in wrangler.toml
+        if (env.ASSETS) {
+            try {
+                const response = await env.ASSETS.fetch(request);
+                if (response.status === 404 && !url.pathname.includes('.')) {
+                    // SPA Fallback: serve index.html for unknown paths that look like routes
+                    return await env.ASSETS.fetch(new Request(new URL('/index.html', request.url), request));
+                }
+                return response;
+            } catch (e) {
+                return new Response("Error loading asset: " + e.message, { status: 500 });
+            }
+        }
+
+        return new Response("ASSETS binding not found. Check wrangler.toml", { status: 500 });
     }
 };
