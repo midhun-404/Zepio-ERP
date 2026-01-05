@@ -59,13 +59,63 @@ export default {
                 }), { headers });
             }
 
-            // Settings (required for dashboard load)
+            // Settings
             if (url.pathname === '/api/settings' && request.method === 'GET') {
                 return new Response(JSON.stringify({
                     currency: "USD",
                     theme: "light",
                     companyName: "Demo Company"
                 }), { headers });
+            }
+
+            // --- Mock Data Endpoints to prevent Crashes ---
+
+            // Inventory: Products
+            if (url.pathname === '/api/products' && request.method === 'GET') {
+                return new Response(JSON.stringify([
+                    { id: 1, name: "Demo Product A", sku: "DP-001", price: 100, stock: 50, category: "Electronics" },
+                    { id: 2, name: "Demo Product B", sku: "DP-002", price: 250, stock: 20, category: "Furniture" }
+                ]), { headers });
+            }
+
+            // Inventory: Suppliers
+            if (url.pathname === '/api/suppliers' && request.method === 'GET') {
+                return new Response(JSON.stringify([
+                    { id: 1, name: "Global Supplies Inc", email: "contact@globalsupplies.com", phone: "123-456-7890" },
+                    { id: 2, name: "Local Vendors Ltd", email: "sales@localvendors.com", phone: "987-654-3210" }
+                ]), { headers });
+            }
+
+            // Inventory: Purchase Orders
+            if (url.pathname === '/api/purchases' && request.method === 'GET') {
+                return new Response(JSON.stringify([
+                    { id: 101, displayId: "PO-101", supplierId: 1, date: "2025-01-01", status: "Received", total: 5000, Supplier: { name: "Global Supplies Inc" } }
+                ]), { headers });
+            }
+
+            // Billing: Invoices
+            if (url.pathname === '/api/invoices' && request.method === 'GET') {
+                return new Response(JSON.stringify([
+                    { id: 201, invoiceNumber: "INV-2025-001", customerName: "John Doe", date: "2025-01-02", total: 150, status: "Paid" }
+                ]), { headers });
+            }
+
+            // Reports: Dashboard Stats
+            if (url.pathname === '/api/reports/dashboard' && request.method === 'GET') {
+                return new Response(JSON.stringify({
+                    totalSales: 15000,
+                    totalOrders: 45,
+                    lowStockCount: 2,
+                    monthlyRevenue: [1200, 1900, 3000, 5000, 2000, 3000, 4500]
+                }), { headers });
+            }
+
+            // Reports: Top Products
+            if (url.pathname === '/api/reports/top-products' && request.method === 'GET') {
+                return new Response(JSON.stringify([
+                    { name: "Demo Product A", sales: 120 },
+                    { name: "Demo Product B", sales: 85 }
+                ]), { headers });
             }
 
             // Fallback for other API routes to prevent crashes
