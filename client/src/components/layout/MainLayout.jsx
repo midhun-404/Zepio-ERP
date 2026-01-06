@@ -17,6 +17,7 @@ import {
 export default function MainLayout() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [expandedMenu, setExpandedMenu] = React.useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -40,8 +41,6 @@ export default function MainLayout() {
         { path: '/settings', icon: SettingsIcon, label: 'Settings' },
         { path: '/about', icon: Info, label: 'About' },
     ];
-
-    const location = useLocation();
 
     // Helper to determine if a route is active with strict rules
     const isRouteActive = (routePath) => {

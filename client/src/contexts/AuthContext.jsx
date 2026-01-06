@@ -25,6 +25,8 @@ export const AuthProvider = ({ children }) => {
                         setUser(savedUser);
 
                         // Background sync with server to get latest settings (Currency, etc.)
+                        // DISABLED for Demo: Prevents overwriting local changes with hardcoded backend defaults
+                        /* 
                         axios.get('/settings').then(res => {
                             const settings = res.data;
                             setUser(prev => {
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }) => {
                                 return updated;
                             });
                         }).catch(err => console.error('Background sync failed', err));
+                        */
 
                     } catch (parseError) {
                         console.error('Failed to parse stored user', parseError);
