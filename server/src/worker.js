@@ -172,13 +172,58 @@ export default {
                 // --- SUPPLIERS ---
                 if (url.pathname === '/api/suppliers') {
                     if (request.method === 'GET') {
-                        const { results } = await env.DB.prepare("SELECT * FROM Suppliers").all();
+                        const { results } = await env.DB.prepare("SELECT * FROM Suppliers ORDER BY name ASC").all();
                         return json(results);
                     }
                     if (request.method === 'POST') {
                         const body = await request.json();
                         const id = crypto.randomUUID();
-                        await env.DB.prepare("INSERT INTO Suppliers (id, shopId, name, email, phone) VALUES (?, ?, ?, ?, ?)").bind(id, 'SHOP-001', body.name, body.email, body.phone).run();
+                        // Handle potential optional fields
+                        await env.DB.prepare("INSERT INTO Suppliers (id, shopId, name, email, phone, address) VALUES (?, ?, ?, ?, ?, ?)").bind(id, 'SHOP-001', body.name || 'Unknown', body.email, body.phone, body.address).run();
+                        return json({ id, ...body });
+                    }
+                    if (request.method === 'DELETE' || (request.method === 'PUT' && url.pathname.match(/\/api\/suppliers\/.+/))) {
+                        // Basic handle for delete needed for supplier list "Trash" icon
+                        const sid = url.pathname.split('/').pop();
+                        if (request.method === 'DELETE') {
+                            await env.DB.prepare("DELETE FROM Suppliers WHERE id = ?").bind(sid).run();
+                            return json({ success: true });
+                        }
+                        if (request.method === 'PUT') {
+                            const body = await request.json();
+                            await env.DB.prepare("UPDATE Suppliers SET name=?, email=?, phone=?, address=? WHERE id=?")
+                                .bind(body.name, body.email, body.phone, body.address, sid).run();
+                            return json({ success: true });
+                        }
+                    }
+                }
+
+                // --- PURCHASE ORDERS ---
+                if (url.pathname === '/api/purchases') {
+                    if (request.method === 'GET') {
+                        // JOIN with Suppliers to get name
+                        const { results } = await env.DB.prepare(`
+                            SELECT PO.*, S.name as supplierName 
+                            FROM PurchaseOrders PO 
+                            LEFT JOIN Suppliers S ON PO.supplierId = S.id 
+                            ORDER BY PO.date DESC
+                        `).all();
+
+                        // Transform for frontend expected structure { supplier: { name: ... } }
+                        const mapped = results.map(row => ({
+                            ...row,
+                            supplier: { name: row.supplierName }
+                        }));
+                        return json(mapped);
+                    }
+                    if (request.method === 'POST') {
+                        const body = await request.json();
+                        const id = crypto.randomUUID();
+                        // Basic Insert
+                        await env.DB.prepare(`
+                            INSERT INTO PurchaseOrders (id, shopId, supplierId, poNumber, totalAmount, status)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        `).bind(id, 'SHOP-001', body.supplierId, body.poNumber, body.totalAmount, 'PENDING').run();
                         return json({ id, ...body });
                     }
                 }

@@ -305,34 +305,34 @@ export default function Settings() {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-100">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-lg border border-red-100 gap-4">
                                     <div>
                                         <p className="font-bold text-gray-900">Reset Sales Data</p>
                                         <p className="text-sm text-muted">Deletes all invoices, payments, and reports. Keeps products.</p>
                                     </div>
-                                    <Button type="button" variant="danger" onClick={() => handleReset('sales')} disabled={resetting}>
+                                    <Button type="button" variant="danger" onClick={() => handleReset('sales')} disabled={resetting} className="w-full sm:w-auto">
                                         <RotateCcw className="mr-2 h-4 w-4" />
                                         {resetting ? 'Resetting...' : 'Reset Sales'}
                                     </Button>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-100">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-lg border border-red-100 gap-4">
                                     <div>
                                         <p className="font-bold text-gray-900">Factory Reset</p>
                                         <p className="text-sm text-muted">Deletes EVERYTHING: Products, Customers, Sales. Irreversible.</p>
                                     </div>
-                                    <Button type="button" variant="danger" onClick={() => handleReset('all')} disabled={resetting}>
+                                    <Button type="button" variant="danger" onClick={() => handleReset('all')} disabled={resetting} className="w-full sm:w-auto">
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         {resetting ? 'Wiping...' : 'Factory Reset'}
                                     </Button>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 bg-red-100 rounded-lg border border-red-200">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-red-100 rounded-lg border border-red-200 gap-4">
                                     <div>
                                         <p className="font-bold text-red-900">Delete Account</p>
                                         <p className="text-sm text-red-700">Permanently delete your account and all data. No going back.</p>
                                     </div>
-                                    <Button type="button" variant="danger" onClick={handleDeleteAccount} disabled={resetting} className="bg-red-700 hover:bg-red-800 text-white">
+                                    <Button type="button" variant="danger" onClick={handleDeleteAccount} disabled={resetting} className="bg-red-700 hover:bg-red-800 text-white w-full sm:w-auto">
                                         <ShieldAlert className="mr-2 h-4 w-4" />
                                         {resetting ? 'Deleting...' : 'Delete Account'}
                                     </Button>
