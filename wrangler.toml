@@ -10,3 +10,8 @@ binding = "ASSETS"
 
 [vars]
 NODE_ENV = "production"
+
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "zepio-erp-db"
+database_id = "1432ef28-2d57-4477-825a-a67464f00a2d"
