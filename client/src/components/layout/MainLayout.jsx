@@ -182,14 +182,15 @@ export default function MainLayout() {
                         THIS IS A DEMO MODE AND SOME FUNCTIONS MAY NOT WORK,IT IS FOR DEMO USE PURPOSE
                     </div>
                 )}
-                <div className="p-8 pb-16">
+                {/* Adjusted padding for mobile */}
+                <div className="p-4 md:p-8 pb-16">
                     <Outlet />
                 </div>
 
-                {/* Global Watermark Footer */}
-                <div className="fixed bottom-0 right-0 left-64 bg-white/80 backdrop-blur-sm border-t border-gray-200 py-2 px-6 flex justify-between items-center z-30 text-xs text-gray-500">
+                {/* Global Watermark Footer - Responsive positioning */}
+                <div className="fixed bottom-0 right-0 left-0 md:left-64 bg-white/80 backdrop-blur-sm border-t border-gray-200 py-2 px-6 flex justify-between items-center z-30 text-xs text-gray-500">
                     <span>&copy; {new Date().getFullYear()} Zepio ERP</span>
-                    <span className="font-semibold tracking-wide">Developed by MIDHUN SANIL</span>
+                    <span className="font-semibold tracking-wide hidden sm:inline">Developed by MIDHUN SANIL</span>
                 </div>
             </main>
         </div>

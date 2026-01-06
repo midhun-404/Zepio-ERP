@@ -280,7 +280,7 @@ export default function POS() {
             <InvoiceTemplate data={successData} user={user} />
 
             {/* Main POS Interface - Hidden on Print */}
-            <div className="h-[calc(100vh-6rem)] flex -m-8 relative print:hidden">
+            <div className="flex flex-col lg:flex-row h-[calc(100vh-6rem)] -m-4 md:-m-8 relative print:hidden">
 
                 {/* Success Modal */}
                 {successData && (
@@ -354,7 +354,7 @@ export default function POS() {
                 )}
 
                 {/* Left: Product Selection */}
-                <div className="flex-1 p-6 overflow-y-auto bg-gray-50 border-r border-gray-200">
+                <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 border-r border-gray-200 order-2 lg:order-1 h-full">
                     <div className="mb-6 sticky top-0 bg-gray-50 z-10 pb-4 flex justify-between gap-4">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
@@ -390,7 +390,7 @@ export default function POS() {
                 </div>
 
                 {/* Right: Cart & Checkout */}
-                <div className="w-[400px] flex flex-col bg-white shadow-xl z-20">
+                <div className="w-full lg:w-[400px] h-auto lg:h-full flex flex-col bg-white shadow-xl z-20 order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-gray-200">
                     <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                         <div className="flex items-center font-bold text-lg text-primary">
                             <ShoppingCart className="mr-2 h-5 w-5" />

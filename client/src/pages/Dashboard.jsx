@@ -174,19 +174,19 @@ export default function Dashboard() {
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
                                     <tr>
-                                        <th className="px-6 py-3">Date</th>
-                                        <th className="px-6 py-3">Customer</th>
-                                        <th className="px-6 py-3 text-right">Amount</th>
-                                        <th className="px-6 py-3 text-center">Status</th>
+                                        <th className="px-6 py-3 whitespace-nowrap">Date</th>
+                                        <th className="px-6 py-3 whitespace-nowrap">Customer</th>
+                                        <th className="px-6 py-3 text-right whitespace-nowrap">Amount</th>
+                                        <th className="px-6 py-3 text-center whitespace-nowrap">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {stats.recentSales.map(invoice => (
                                         <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-3 text-sm text-gray-600">{new Date(invoice.date).toLocaleDateString()}</td>
-                                            <td className="px-6 py-3 text-sm font-medium text-gray-900">{invoice.customer?.name || 'Walk-in'}</td>
-                                            <td className="px-6 py-3 text-sm text-right font-medium text-gray-900">{formatCurrency(Number(invoice.totalAmount), user)}</td>
-                                            <td className="px-6 py-3 text-center">
+                                            <td className="px-6 py-3 text-sm text-gray-600 whitespace-nowrap">{new Date(invoice.date).toLocaleDateString()}</td>
+                                            <td className="px-6 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">{invoice.customer?.name || 'Walk-in'}</td>
+                                            <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 whitespace-nowrap">{formatCurrency(Number(invoice.totalAmount), user)}</td>
+                                            <td className="px-6 py-3 text-center whitespace-nowrap">
                                                 <span className={`text-xs px-2 py-1 rounded-full ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                     invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                         'bg-red-100 text-red-700'

@@ -9,7 +9,7 @@ export const Table = ({ headers, children }) => {
                         {headers.map((header, index) => (
                             <th
                                 key={index}
-                                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0"
+                                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 whitespace-nowrap"
                             >
                                 {header}
                             </th>
@@ -31,7 +31,7 @@ export const TableRow = ({ children, className = '' }) => (
 );
 
 export const TableCell = ({ children, className = '' }) => (
-    <td className={`p-4 align-middle [&:has([role=checkbox])]:pr-0 ${className}`}>
+    <td className={`p-4 align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap ${className}`}>
         {children}
     </td>
 );
