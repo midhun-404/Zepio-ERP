@@ -77,52 +77,47 @@ export default {
 
                 // --- DASHBOARD ---
                 if (url.pathname === '/api/reports/dashboard') {
-                    // Aggregate stats from D1
-                    /*
-                     sales: { total, count, average }
-                     pendingPayments: (from Invoices not paid)
-                     lowStock: (from Products where stock < 5)
-                     recentSales: (latest 5 Invoices)
-                     topProducts: (grouped by invoice items)
-                     monthlyRevenue
-                    */
+                    try {
+                        // Aggregate stats from D1
+                        const salesStats = await env.DB.prepare(`
+                            SELECT 
+                                SUM(totalAmount) as total, 
+                                COUNT(*) as count, 
+                                AVG(totalAmount) as average 
+                            FROM Invoices WHERE status = 'PAID'
+                        `).first();
 
-                    const salesStats = await env.DB.prepare(`
-                        SELECT 
-                            SUM(totalAmount) as total, 
-                            COUNT(*) as count, 
-                            AVG(totalAmount) as average 
-                        FROM Invoices WHERE status = 'PAID'
-                    `).first();
+                        const pending = await env.DB.prepare("SELECT SUM(totalAmount - paidAmount) as val FROM Invoices WHERE status != 'PAID'").first();
 
-                    const pending = await env.DB.prepare("SELECT SUM(totalAmount - paidAmount) as val FROM Invoices WHERE status != 'PAID'").first();
+                        // Quick fix for nulls
+                        const sales = {
+                            total: (salesStats && salesStats.total) || 0,
+                            count: (salesStats && salesStats.count) || 0,
+                            average: (salesStats && salesStats.average) || 0
+                        };
 
-                    // Quick fix for nulls
-                    const sales = {
-                        total: salesStats.total || 0,
-                        count: salesStats.count || 0,
-                        average: salesStats.average || 0
-                    };
+                        const recentSalesData = await env.DB.prepare("SELECT * FROM Invoices ORDER BY date DESC LIMIT 5").all();
+                        const recentSales = (recentSalesData.results || []).map(inv => ({
+                            id: inv.id,
+                            date: inv.date,
+                            totalAmount: inv.totalAmount,
+                            status: inv.status,
+                            customer: { name: "Valued Customer" } // Join needed normally
+                        }));
 
-                    const recentSalesData = await env.DB.prepare("SELECT * FROM Invoices ORDER BY date DESC LIMIT 5").all();
-                    const recentSales = recentSalesData.results.map(inv => ({
-                        id: inv.id,
-                        date: inv.date,
-                        totalAmount: inv.totalAmount,
-                        status: inv.status,
-                        customer: { name: "Valued Customer" } // Join needed normally
-                    }));
-
-                    return json({
-                        sales,
-                        pendingPayments: pending.val || 0,
-                        lowStock: { count: 0, items: [] }, // TODO
-                        healthScore: 95,
-                        recentSales,
-                        topProducts: [],
-                        deadStock: { data: [] },
-                        monthlyRevenue: [0, 0, 0, 0, 0, 0, sales.total] // Mock array for chart
-                    });
+                        return json({
+                            sales,
+                            pendingPayments: (pending && pending.val) || 0,
+                            lowStock: { count: 0, items: [] }, // TODO
+                            healthScore: 95,
+                            recentSales,
+                            topProducts: [],
+                            deadStock: { data: [] },
+                            monthlyRevenue: [0, 0, 0, 0, 0, 0, sales.total] // Mock array for chart
+                        });
+                    } catch (err) {
+                        return error("Dashboard Error: " + err.message, 500);
+                    }
                 }
 
                 // --- PRODUCTS ---
@@ -134,10 +129,11 @@ export default {
                     if (request.method === 'POST') {
                         const body = await request.json();
                         const id = crypto.randomUUID();
+                        // Handle potential optional fields
                         await env.DB.prepare(`
                             INSERT INTO Products (id, shopId, name, price, stock, category, sku, description)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                        `).bind(id, 'SHOP-001', body.name, body.price, body.stock, body.category, body.sku, body.description).run();
+                        `).bind(id, 'SHOP-001', body.name, body.price, body.stock, body.category || 'General', body.sku || '', body.description || '').run();
 
                         // Return the created product
                         return json({ id, ...body });
@@ -166,6 +162,49 @@ export default {
                             VALUES (?, ?, ?, ?, ?, ?, ?)
                         `).bind(id, 'SHOP-001', body.invoiceNumber || 'INV-' + Date.now(), null, body.totalAmount, body.status, new Date().toISOString()).run();
                         return json({ id, ...body });
+                    }
+                }
+
+                // --- REPORTS ---
+                if (url.pathname === '/api/reports/top-products') {
+                    try {
+                        const { startDate, endDate } = Object.fromEntries(url.searchParams);
+
+                        let query = `
+                            SELECT 
+                                P.name as productName,
+                                SUM(II.quantity) as totalSold,
+                                SUM(II.total) as totalRevenue
+                            FROM InvoiceItems II
+                            JOIN Products P ON II.productId = P.id
+                         `;
+
+                        // Fix: Use correct join syntax and ensure logic handles empty tables
+                        query += ` JOIN Invoices I ON II.invoiceId = I.id `;
+
+                        const args = [];
+                        if (startDate && endDate) {
+                            query += ` WHERE I.date BETWEEN ? AND ? `;
+                            args.push(startDate, endDate);
+                        }
+
+                        query += ` GROUP BY P.id ORDER BY totalRevenue DESC LIMIT 5`;
+
+                        // Handle potential empty tables gracefully
+                        const result = await env.DB.prepare(query).bind(...args).all();
+
+                        // Safe mapping
+                        const mapped = (result.results || []).map(r => ({
+                            product: { name: r.productName },
+                            totalSold: r.totalSold,
+                            totalRevenue: r.totalRevenue
+                        }));
+
+                        return json(mapped);
+                    } catch (error) {
+                        // Fallback to empty if query fails (e.g. invalid date or other issue)
+                        console.error("Report Error:", error.message);
+                        return json([]);
                     }
                 }
 
