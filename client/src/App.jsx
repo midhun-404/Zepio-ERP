@@ -21,10 +21,13 @@ import PurchaseOrderList from './pages/inventory/PurchaseOrderList';
 import PurchaseOrderForm from './pages/inventory/PurchaseOrderForm';
 
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import DemoNotice from './components/common/DemoNotice';
 
 function App() {
   return (
     <BrowserRouter>
+      <DemoNotice />
+
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />

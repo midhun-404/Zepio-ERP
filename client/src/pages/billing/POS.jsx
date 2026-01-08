@@ -224,6 +224,7 @@ export default function POS() {
                 customerName: customer.name,
                 customerPhone: customer.phone,
                 discount: Number(discount),
+                totalAmount: total, // FIX: Send totalAmount to backend
                 paymentMode,
                 paymentAmount: status === 'HELD' || status === 'QUOTATION' ? 0 : Number(paymentAmount),
                 status

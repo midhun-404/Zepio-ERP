@@ -154,13 +154,38 @@ export default {
                         return json(results);
                     }
                     if (request.method === 'POST') {
-                        // Creating invoice logic
                         const body = await request.json();
                         const id = crypto.randomUUID();
-                        await env.DB.prepare(`
+                        const statements = [];
+
+                        // 1. Create Invoice
+                        statements.push(env.DB.prepare(`
                             INSERT INTO Invoices (id, shopId, invoiceNumber, customerId, totalAmount, status, date)
                             VALUES (?, ?, ?, ?, ?, ?, ?)
-                        `).bind(id, 'SHOP-001', body.invoiceNumber || 'INV-' + Date.now(), null, body.totalAmount, body.status, new Date().toISOString()).run();
+                        `).bind(id, 'SHOP-001', body.invoiceNumber || 'INV-' + Date.now(), body.customerId || null, body.totalAmount || 0, body.status || 'PAID', new Date().toISOString()));
+
+                        // 2. Process Items (Save to InvoiceItems & Decrement Stock)
+                        if (body.items && Array.isArray(body.items)) {
+                            for (const item of body.items) {
+                                const itemId = crypto.randomUUID();
+                                // Insert InvoiceItem
+                                statements.push(env.DB.prepare(`
+                                    INSERT INTO InvoiceItems (id, invoiceId, productId, quantity, price, total)
+                                    VALUES (?, ?, ?, ?, ?, ?)
+                                `).bind(itemId, id, item.productId || item.id, item.quantity, item.price, item.quantity * item.price));
+
+                                // Decrement Product Stock
+                                statements.push(env.DB.prepare(`
+                                    UPDATE Products 
+                                    SET stock = stock - ? 
+                                    WHERE id = ?
+                                `).bind(item.quantity, item.productId || item.id));
+                            }
+                        }
+
+                        // Execute all in a batch
+                        await env.DB.batch(statements);
+
                         return json({ id, ...body });
                     }
                 }
@@ -218,7 +243,7 @@ export default {
                         const body = await request.json();
                         const id = crypto.randomUUID();
                         // Handle potential optional fields
-                        await env.DB.prepare("INSERT INTO Suppliers (id, shopId, name, email, phone, address) VALUES (?, ?, ?, ?, ?, ?)").bind(id, 'SHOP-001', body.name || 'Unknown', body.email, body.phone, body.address).run();
+                        await env.DB.prepare("INSERT INTO Suppliers (id, shopId, name, email, phone, address) VALUES (?, ?, ?, ?, ?, ?)").bind(id, 'SHOP-001', body.name || 'Unknown', body.email || null, body.phone || null, body.address || null).run();
                         return json({ id, ...body });
                     }
                     if (request.method === 'DELETE' || (request.method === 'PUT' && url.pathname.match(/\/api\/suppliers\/.+/))) {
@@ -231,7 +256,7 @@ export default {
                         if (request.method === 'PUT') {
                             const body = await request.json();
                             await env.DB.prepare("UPDATE Suppliers SET name=?, email=?, phone=?, address=? WHERE id=?")
-                                .bind(body.name, body.email, body.phone, body.address, sid).run();
+                                .bind(body.name || 'Unknown', body.email || null, body.phone || null, body.address || null, sid).run();
                             return json({ success: true });
                         }
                     }
@@ -258,11 +283,31 @@ export default {
                     if (request.method === 'POST') {
                         const body = await request.json();
                         const id = crypto.randomUUID();
-                        // Basic Insert
-                        await env.DB.prepare(`
+                        const statements = [];
+
+                        // 1. Create Purchase Order
+                        statements.push(env.DB.prepare(`
                             INSERT INTO PurchaseOrders (id, shopId, supplierId, poNumber, totalAmount, status)
                             VALUES (?, ?, ?, ?, ?, ?)
-                        `).bind(id, 'SHOP-001', body.supplierId, body.poNumber, body.totalAmount, 'PENDING').run();
+                        `).bind(id, 'SHOP-001', body.supplierId || null, body.poNumber || 'PO-' + Date.now(), body.totalAmount || 0, body.status || 'PENDING'));
+
+                        // 2. Process Items (Save to PurchaseOrderItems)
+                        // Note: Stock increment should strictly happen on 'RECEIVED' status, 
+                        // but we save items here for record keeping.
+                        if (body.items && Array.isArray(body.items)) {
+                            for (const item of body.items) {
+                                const itemId = crypto.randomUUID();
+                                statements.push(env.DB.prepare(`
+                                    INSERT INTO PurchaseOrderItems (id, purchaseOrderId, productId, quantity, unitCost, totalCost)
+                                    VALUES (?, ?, ?, ?, ?, ?)
+                                `).bind(itemId, id, item.productId || item.id, item.quantity, item.unitCost || 0, (item.quantity * (item.unitCost || 0))));
+
+                                // If user sends status 'RECEIVED' or 'COMPLETED', we could increment stock here.
+                                // For now, we just save the record.
+                            }
+                        }
+
+                        await env.DB.batch(statements);
                         return json({ id, ...body });
                     }
                 }

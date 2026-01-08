@@ -89,7 +89,7 @@ export default function MainLayout() {
             )}
 
             {/* Sidebar */}
-            <aside className={`w-64 bg-gray-900 text-white ${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col fixed h-full inset-y-0 z-50 print:hidden transition-transform duration-300 md:translate-x-0`}>
+            <aside className={`w-64 bg-gray-900 text-white ${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col sticky top-0 h-screen z-50 print:hidden transition-transform duration-300 md:translate-x-0`}>
                 <div className="p-6 border-b border-gray-800 flex items-center gap-3 justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded bg-accent flex items-center justify-center font-bold text-white">Z</div>
@@ -162,7 +162,7 @@ export default function MainLayout() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 md:ml-64 bg-background min-h-screen flex flex-col relative transition-all duration-300 ease-in-out">
+            <main className="flex-1 bg-background min-h-screen flex flex-col relative transition-all duration-300 ease-in-out">
                 {/* Mobile Header */}
                 <header className="md:hidden bg-white border-b border-border p-4 flex items-center justify-between sticky top-0 z-40 print:hidden">
                     <div className="flex items-center gap-2 font-bold text-primary">
@@ -177,11 +177,7 @@ export default function MainLayout() {
                     </button>
                 </header>
                 {/* Demo Banner */}
-                {user?.isDemo && (
-                    <div className="bg-indigo-600 text-white px-4 py-2 text-xs font-medium text-center shadow-md relative z-40">
-                        THIS IS A DEMO MODE AND SOME FUNCTIONS MAY NOT WORK,IT IS FOR DEMO USE PURPOSE
-                    </div>
-                )}
+
                 {/* Adjusted padding for mobile */}
                 <div className="p-4 md:p-8 pb-16">
                     <Outlet />
